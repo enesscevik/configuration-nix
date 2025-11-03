@@ -34,7 +34,7 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
   boot.kernelModules = [ "kvm-amd" ];
 
-  networking.hostName = "nixos"; # Define your hostname.
+  networking.hostName = "enes"; # Define your hostname.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   # Configure network proxy if necessary
@@ -56,7 +56,7 @@
   # Set your time zone.
   time.timeZone = "Europe/Istanbul";
 
-  time.hardwareClockInLocalTime = true;
+  # time.hardwareClockInLocalTime = true; # for dual-boot with windows
 
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
@@ -110,10 +110,14 @@
     packages = with pkgs; [];
   };
 
+  services.udisks2.enable = true;
+  security.polkit.enable = true;
+  security.soteria.enable = true;
   services = {
     asusd = { 
       enable = true;
       enableUserService = true;
+      asusdConfig.source = "/etc/nixos/asusd.ron";
     };
   };
   
@@ -129,7 +133,11 @@
   nixpkgs.config.allowUnfree = true;
 
   programs.hyprland.enable = true;
+  #programs.hyprland.extraConfig =''
+  #  exec-once = ${pkgs.polkit-kde-agent}/lib/polkit-kde-authentication-agent-1
+  #'';
   programs.hyprlock.enable = true;
+
 
   programs.localsend.enable = true; 
   programs.steam.enable = true;
@@ -138,7 +146,7 @@
   xdg.portal.xdgOpenUsePortal = true;
 
 
-  programs.git.enable = true;
+  programs.git.enable = true; # git icin tanimlanacak user.name ve user.email
   programs.vim = {
     enable = true;
     defaultEditor = true;
@@ -147,11 +155,15 @@
   xdg.icons.fallbackCursorThemes = [ "Bibata-Modern-Ice" ];
    
   fonts = {
-    fontconfig.enable = true;
+    fontconfig = {
+      enable = true;
+      defaultFonts.monospace = ["nerd-fonts.fira-code" "nerd-fonts.fira-code"];
+    };
     enableDefaultPackages = true;
     packages = with pkgs; [
       fira-code-symbols
       nerd-fonts.fira-code
+      nerd-fonts.caskaydia-cove
       
     ];
   };
@@ -166,7 +178,10 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
   #  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-     rustup
+     rustc
+     rustfmt
+     cargo 
+     clippy
      libgcc
      gcc
      nodejs_24
@@ -175,9 +190,12 @@
      cmake
      openjdk
      android-studio
+     gemini-cli
+     gh
      #
      android-tools
      #
+     #kdePackages.polkit-kde-agent-1
      unixtools.ifconfig
      gocryptfs
      wget
